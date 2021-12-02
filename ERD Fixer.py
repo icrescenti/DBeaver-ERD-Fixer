@@ -1,14 +1,23 @@
 import os
 import re
 import json
+import platform
 from os.path import exists
 
-f = open(os.getenv('APPDATA') + "\DBeaverData\workspace6\General\.dbeaver\data-sources.json", "r")
-sources = json.loads(f.read())
+sources = None
+osName = platform.system()
+
+if (osName == "Windows"):
+    f = open(os.getenv('APPDATA') + "\DBeaverData\workspace6\General\.dbeaver\data-sources.json", "r")
+    sources = json.loads(f.read())
+elif (osName == "Linux"):
+    f = open(os.path.expanduser('~') + "/.local/share/DBeaverData/workspace6/General/.dbeaver/data-sources.json", "r")
+    sources = json.loads(f.read())
+
 connections = sources['connections']
 f.close()
 
-print("\nOperating System: Windows")
+print("\nOperating System: " + osName)
 print("List of connections:")
 for index, connection in enumerate(connections.keys()):
     print("     " +  str(index+1) + ") " + connections[connection]['name'])
