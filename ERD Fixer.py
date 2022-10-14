@@ -6,34 +6,40 @@ from os.path import exists
 
 sources = None
 osName = platform.system()
+dbeaverPath = ""
 
 if (osName == "Windows"):
-    f = open(os.getenv('APPDATA') + "\DBeaverData\workspace6\General\.dbeaver\data-sources.json", "r")
-    sources = json.loads(f.read())
+    dbeaverPath = os.getenv('APPDATA') + "\DBeaverData\workspace6\General\.dbeaver\data-sources.json"
 elif (osName == "Linux"):
-    f = open(os.path.expanduser('~') + "/.local/share/DBeaverData/workspace6/General/.dbeaver/data-sources.json", "r")
-    sources = json.loads(f.read())
+    dbeaverPath = os.path.expanduser('~') + "/.local/share/DBeaverData/workspace6/General/.dbeaver/data-sources.json"
 
-connections = sources['connections']
+f = open(dbeaverPath , "r")
+sources = json.loads(f.read())
 f.close()
 
-print("\nOperating System: " + osName)
+connections = sources['connections']
+
+print("Operating System: " + osName)
 print("List of connections:")
 for index, connection in enumerate(connections.keys()):
-    print("     " +  str(index+1) + ") " + connections[connection]['name'])
+    print("\t" +  str(index+1) + ") " + connections[connection]['name'])
 
-option = input()
+option = input("> ")
 uid = None
 index = 0
 connections = list(connections.keys())
+
+while (int(option) > len(connections)):
+    print("Incorrect connection!")
+    option = input("> ")
 
 while (uid == None and index < len(connections)):
     if (str(index+1) == option):
         uid=connections[index]
     index += 1
 
-print("ERD File:")
-folderPath = input()
+databaseName = input("ERD database name: ")
+folderPath = input("ERD File: ")
 if (exists(folderPath) == False):
     print("INVALID FILE!")
     exit()
@@ -46,5 +52,10 @@ f2.close()
 f3 = open(folderPath, "w")
 f3.write(erdFile)
 f3.close()
+
+sources['virtual-models'][connection][databaseName]["@properties"]["erd.diagram.state"]["serialized"] = erdFile
+f4 = open(dbeaverPath , "w")
+f4.write(json.dumps(sources, indent=4))
+f4.close()
 
 print("Done, the ERD file was updated successfully")
