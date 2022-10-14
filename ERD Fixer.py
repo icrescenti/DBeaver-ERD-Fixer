@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import json
 import platform
 from os.path import exists
@@ -24,7 +25,11 @@ print("List of connections:")
 for index, connection in enumerate(connections.keys()):
     print("\t" +  str(index+1) + ") " + connections[connection]['name'])
 
-option = input("> ")
+print(len(sys.argv))
+option = 0
+if (len(sys.argv) < 2):
+    option = input("> ")
+
 uid = None
 index = 0
 connections = list(connections.keys())
@@ -38,8 +43,14 @@ while (uid == None and index < len(connections)):
         uid=connections[index]
     index += 1
 
-databaseName = input("ERD database name: ")
-folderPath = input("ERD File: ")
+databaseName = ""
+folderPath = ""
+
+if (len(sys.argv) < 3):
+    databaseName = input("ERD database name: ")
+if (len(sys.argv) < 4):
+    folderPath = input("ERD File: ")
+
 if (exists(folderPath) == False):
     print("INVALID FILE!")
     exit()
